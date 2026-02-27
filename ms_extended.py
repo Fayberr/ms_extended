@@ -106,3 +106,14 @@ def get_tablist():
         tablist.append(text)
 
     return tablist
+
+def get_area() -> str:
+    with m.script_loop:
+        mc = JavaClass("net.minecraft.client.Minecraft").getInstance()
+        for entry in mc.getConnection().getOnlinePlayers():
+            display = entry.getTabListDisplayName()
+            if display is not None:
+                text = display.getString()
+                if text.startswith("Area: "):
+                    return text[6:]
+    return None
