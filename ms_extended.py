@@ -141,13 +141,3 @@ def find_hotbar_item(target_item):
             found_slots.append(slot)
 
     return found_slots
-
-def get_hypixel_id(item): # Takes a Itemstack Object
-    nbt = item.nbt
-    marker = 'id:"'
-    start = nbt.find(marker)
-    if start == -1:
-        return None
-    start += len(marker)
-    end = nbt.find('"', start)
-    return nbt[start:end]
