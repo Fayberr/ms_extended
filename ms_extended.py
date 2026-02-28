@@ -117,3 +117,27 @@ def get_area() -> str:
                 if text.startswith("Area: "):
                     return text[6:]
     return None
+
+def hotbar_dict():
+    player_items = m.player_inventory()
+
+    hotbar_items = {}
+
+    for item in player_items:
+        if 0 <= item.slot <= 8:
+            hotbar_items[item.slot] = item
+
+    return hotbar_items
+
+def find_hotbar_item(target_item):
+    if target_item.startswith("minecraft:"):
+        target_item = target_item.split(":")[1]
+
+    hotbar = hotbar_dict()
+    found_slots = []
+
+    for slot, item in hotbar.items():
+        if target_item == item.item.split(":")[1]:
+            found_slots.append(slot)
+
+    return found_slots
