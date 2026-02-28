@@ -3,7 +3,7 @@ import time, random, math
 from java import JavaClass
 
 def look(target_yaw, target_pitch, duration=0.22, steps=70):
-    CONFIRM_YAW_PITCH = False  # If it should manuallly correct at the end (If you need exact Yaw and Pitch
+    CONFIRM_YAW_PITCH = True  # If it should manually correct at the end (If you need exact Yaw and Pitch
 
     sy, sp = m.player_orientation()
 
@@ -141,3 +141,13 @@ def find_hotbar_item(target_item):
             found_slots.append(slot)
 
     return found_slots
+
+def get_hypixel_id(item): # Takes a Itemstack Object
+    nbt = item.nbt
+    marker = 'id:"'
+    start = nbt.find(marker)
+    if start == -1:
+        return None
+    start += len(marker)
+    end = nbt.find('"', start)
+    return nbt[start:end]
