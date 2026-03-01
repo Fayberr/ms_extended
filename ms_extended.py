@@ -107,17 +107,6 @@ def get_tablist():
 
     return tablist
 
-def get_area() -> str:
-    with m.script_loop:
-        mc = JavaClass("net.minecraft.client.Minecraft").getInstance()
-        for entry in mc.getConnection().getOnlinePlayers():
-            display = entry.getTabListDisplayName()
-            if display is not None:
-                text = display.getString()
-                if text.startswith("Area: "):
-                    return text[6:]
-    return None
-
 def hotbar_dict():
     player_items = m.player_inventory()
 
@@ -141,3 +130,117 @@ def find_hotbar_item(target_item):
             found_slots.append(slot)
 
     return found_slots
+
+def get_selected_slot():
+    for item in m.player_inventory():
+        if item.selected:
+            return item.slot
+    return None
+
+## Hypixel Exclusive
+def extract_number(text):
+    num = ""
+    for c in text:
+        if c.isdigit():
+            num += c
+        elif num:
+            break
+    return num if num else "0"
+
+def get_scoreboard_info():
+    data = {
+        "area": None,
+        "server": None,
+        "gems": None,
+        "copper": None,
+        "speed": None,
+        "farming_fortune": None,
+        "strength": None,
+        "pet_name": None,
+        "pet_level": None,
+        "profile": None,
+        "sb_level": None,
+        "bank": None,
+        "interest": None,
+        "farming_level": None
+    }
+
+    try:
+        with m.script_loop:
+            mc = JavaClass("net.minecraft.client.Minecraft").getInstance()
+            connection = mc.getConnection()
+            if connection is None:
+                return data
+
+            for entry in connection.getOnlinePlayers():
+                display = entry.getTabListDisplayName()
+                if display is None:
+                    continue
+
+                text = display.getString().strip()
+
+                try:
+                    if "Area:" in text:
+                        data["area"] = text.split("Area:")[1].strip()
+
+                    elif "Server:" in text:
+                        data["server"] = text.split("Server:")[1].strip()
+
+                    elif "Gems:" in text:
+                        data["gems"] = int(extract_number(text))
+
+                    elif "Copper:" in text:
+                        data["copper"] = int(extract_number(text))
+
+                    elif "Speed:" in text:
+                        data["speed"] = int(extract_number(text))
+
+                    elif "Farming Fortune:" in text:
+                        data["farming_fortune"] = int(extract_number(text))
+
+                    elif "Strength:" in text:
+                        data["strength"] = int(extract_number(text))
+
+                    elif "[Lvl " in text:
+                        lvl_start = text.find("[Lvl ")
+                        lvl_end = text.find("]", lvl_start)
+                        if lvl_end != -1:
+                            level = int(text[lvl_start+5:lvl_end])
+                            pet = text[lvl_end+2:].strip()
+                            data["pet_level"] = level
+                            data["pet_name"] = pet
+
+                    elif "Profile:" in text:
+                        data["profile"] = text.split("Profile:")[1].strip()
+
+                    elif "SB Level:" in text:
+                        data["sb_level"] = int(extract_number(text))
+
+                    elif "Bank:" in text:
+                        data["bank"] = int(extract_number(text))
+
+                    elif "Interest:" in text:
+                        data["interest"] = text.split("Interest:")[1].strip()
+
+                    elif "Farming " in text and "%" in text:
+                        data["farming_level"] = int(extract_number(text))
+
+                except:
+                    continue
+
+    except:
+        return data
+
+    return data
+
+def find_hypixel_id(hypixel_id):
+
+    hotbar = hotbar_dict()
+    found_slots = []
+
+    for slot, item in hotbar.items():
+        if hypixel_id == get_hypixel_id(item):
+            found_slots.append(slot)
+
+    return found_slots
+
